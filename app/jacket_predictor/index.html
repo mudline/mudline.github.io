@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme="light">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#43313F"/>
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+
+  <title>海上风电导管架数据快速评估工具 | JacketPredictor</title>
+
+  <!-- Bootstrap -->
+  <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css"/>
+  <link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_6peoq002giu.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/blueimp-md5@2.19.0/js/md5.min.js"></script>
+
+  <style>
+    body {
+      font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, "Microsoft YaHei", sans-serif;
+      background: #f8f9fa;
+      color: #34495e;
+    }
+
+    header {
+      height: 30vh;
+      background: linear-gradient(135deg,#3a3f51,#5b5f73);
+    }
+
+    .tool-card {
+      margin-top: -120px;
+      margin-bottom: 80px;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.12);
+      padding: 40px;
+    }
+
+    h2 {
+      text-align: center;
+      font-weight: 600;
+      margin-bottom: 30px;
+      color: #2c3e50;
+    }
+
+    label {
+      font-weight: 600;
+      font-size: 14px;
+      color: #6c757d;
+    }
+
+    /* ✅ 修复 select 文字被裁切问题 */
+    .form-control {
+      height: calc(1.5em + 0.75rem + 2px);
+      padding: 0.375rem 0.75rem !important;
+      font-size: 14px;
+      line-height: 1.5;
+      border-radius: 8px;
+    }
+
+    input.form-control {
+      padding: 0.5rem 0.75rem !important;
+    }
+
+    input[readonly] {
+      background: #f1f3f5;
+      font-weight: bold;
+      color: #1e3a8a;
+    }
+
+    .btn-primary {
+      border-radius: 8px;
+      padding: 12px;
+      font-weight: bold;
+      box-shadow: 0 6px 12px rgba(30,58,138,0.25);
+    }
+
+    .result-group {
+      margin-top: 30px;
+      padding-top: 25px;
+      border-top: 2px dashed #e9ecef;
+    }
+
+    .info-group {
+      margin-top: 25px;
+      padding: 15px;
+      background: #f8f9fa;
+      border-left: 4px solid #f59e0b;
+      border-radius: 6px;
+      font-size: 13px;
+    }
+
+    .error {
+      color: #dc3545;
+      font-weight: bold;
+      margin-top: 10px;
+      display: none;
+      text-align: center;
+    }
+  </style>
+
+  <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.js"></script>
+</head>
+
+<body>
+
+<nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-dark">
+  <div class="container">
+    <!-- 修改2：替换导航栏品牌为导管架工具名称 -->
+    <a class="navbar-brand" href="/"><strong>SigmaTau</strong></a>
+    <div class="collapse navbar-collapse">
+      <ul class="navbar-nav ml-auto text-center">
+        <li class="nav-item"><a class="nav-link" href="/"><i class="iconfont icon-home-fill"></i> 首页</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<header></header>
+
+<main class="container">
+  <div class="col-lg-8 mx-auto tool-card">
+    <!-- 修改3：替换页面主标题为导管架（JK两列）评估工具 -->
+    <h2>海上风电导管架数据快速评估工具</h2>
+
+    <div class="form-group">
+      <label>省份 (Province)</label>
+      <select id="province" class="form-control">
+        <option>模型初始化中...</option>
+      </select>
+    </div>
+
+    <!-- 优化：添加输入框占位符和范围提示，对齐导管架业务逻辑 -->
+    <div class="form-group">
+      <label>离岸距离 (km)</label>
+      <input type="number" id="distance" class="form-control" step="0.1" placeholder="10.0 ~ 85.0" min="10" max="85">
+    </div>
+    <div class="form-group">
+      <label>单机容量 (MW)</label>
+      <input type="number" id="capacity" class="form-control" step="0.1" placeholder="5.2 ~ 18.0" min="5.2" max="18">
+    </div>
+    <div class="form-group">
+      <label>场址水深 (m)</label>
+      <input type="number" id="depth" class="form-control" step="0.1" placeholder="8.0 ~ 40.0" min="8" max="40">
+    </div>
+    <div class="form-group">
+      <label>授权密码</label>
+      <input type="password" id="password" class="form-control" placeholder="请输入访问密码">
+    </div>
+
+    <button id="predictBtn" class="btn btn-primary btn-block" onclick="runPrediction()">预测</button>
+    <div id="errorMsg" class="error"></div>
+
+    <div class="result-group">
+      <!-- 修改4：替换单桩5个结果项为导管架2个结果项（JK两列） -->
+      <div class="form-group">
+        <label>导管架（t）</label>
+        <input id="res_jacket" class="form-control" readonly placeholder="等待预测...">
+      </div>
+      <div class="form-group">
+        <label>钢管桩（含各种附属构件，t）</label>
+        <input id="res_steel_pile" class="form-control" readonly placeholder="等待预测...">
+      </div>
+    </div>
+
+    <!-- 修改5：替换信息说明为导管架相关内容 -->
+    <div class="info-group">
+      <strong>有关说明：</strong><br>
+      1. 模型基于 Log-GBDT 架构，仅预测导管架、钢管桩两列核心数据。<br>
+      2. 仅用于前期快速估算。<br>
+      3. 单机容量：5.2MW ~ 18.0MW。<br>
+      4. 水深：8m ~ 40m。<br>
+      5. 离岸距离：10km ~ 85km。<br>
+      6. 当前导管架基础数据量过少，仅用于测试。
+    </div>
+
+  </div>
+</main>
+
+<script>
+  let session = null;
+  let provinceMap = [];
+  
+  // 修改6：对齐导管架的模型/省份文件路径（与ONNX转换代码输出一致）
+  const MODEL_PATH = './jacket_jk_model.onnx';
+  const PROVINCES_PATH = './jacket_provinces.json';
+  const VALID_PASSWORD = '106';
+  
+  async function init() {
+    try {
+      // 加载省份映射文件
+      const resp = await fetch(PROVINCES_PATH);
+      if (!resp.ok) {
+        throw new Error(`省份文件加载失败，状态码：${resp.status}`);
+      }
+      provinceMap = await resp.json();
+      
+      // 初始化省份下拉框
+      const sel = document.getElementById('province');
+      sel.innerHTML = '';
+      provinceMap.forEach((p, index) => {
+        const opt = document.createElement('option');
+        opt.value = index; 
+        opt.text = p;
+        sel.appendChild(opt);
+      });
+      
+      // 加载导管架ONNX模型
+      session = await ort.InferenceSession.create(MODEL_PATH);
+    } catch (e) {
+      console.error("初始化失败：", e);
+      document.getElementById('errorMsg').innerText = "系统就绪失败，请检查模型/省份文件是否存在";
+      document.getElementById('errorMsg').style.display = 'block';
+    }
+  }
+  
+  async function runPrediction() {
+    const btn = document.getElementById('predictBtn');
+    const errDiv = document.getElementById('errorMsg');
+    
+    // 获取结果输出元素（导管架、钢管桩）
+    const outJacket = document.getElementById('res_jacket');
+    const outSteelPile = document.getElementById('res_steel_pile');
+    
+    // 重置错误提示和结果样式
+    errDiv.style.display = 'none';
+    outJacket.value = '处理中...';
+    outSteelPile.value = '处理中...';
+
+    // 1. 验证密码
+    const pwd = document.getElementById('password').value;
+    if (pwd !== VALID_PASSWORD) {
+      outJacket.value = '密码错误!';
+      outSteelPile.value = '密码错误!';
+      return;
+    }
+
+    // 2. 获取并验证输入参数
+    const p_code = parseFloat(document.getElementById('province').value);
+    const dist = parseFloat(document.getElementById('distance').value);
+    const cap = parseFloat(document.getElementById('capacity').value);
+    const depth = parseFloat(document.getElementById('depth').value);
+  
+    if (isNaN(dist) || dist < 10 || dist > 85 || 
+        isNaN(cap) || cap < 5.2 || cap > 18 || 
+        isNaN(depth) || depth < 8 || depth > 40) {
+      alert("请核对输入参数，确保在指定范围内填写有效数值！");
+      outJacket.value = '等待预测...';
+      outSteelPile.value = '等待预测...';
+      return;
+    }
+  
+    // 3. 检查模型是否就绪
+    if (!session) {
+      alert("模型尚未初始化完成，请稍候重试！");
+      return;
+    }
+  
+    try {
+      // 4. 禁用按钮，防止重复点击
+      btn.disabled = true;
+      btn.innerText = "引擎处理中...";
+      
+      // 5. 准备输入数据（Float32Array，形状 [1,4]）
+      const inputData = Float32Array.from([p_code, dist, cap, depth]);
+      const tensor = new ort.Tensor('float32', inputData, [1, 4]);
+      
+      // 6. 执行模型推理
+      const results = await session.run({ float_input: tensor });
+      const output = results.variable.data; 
+  
+      // 7. 处理结果（导管架仅2个输出，对齐JK两列）
+      // 步骤：expm1反变换 → 非负约束 → 保留2位小数
+      if (output.length !== 2) {
+        throw new Error(`模型输出异常，预期2个结果，实际获取${output.length}个`);
+      }
+      
+      const jacketValue = Math.max(0, Math.expm1(output[0])); // 导管架结果
+      const steelPileValue = Math.max(0, Math.expm1(output[1])); // 钢管桩结果
+      
+      // 8. 格式化显示（保留2位小数）
+      const formatOptions = { minimumFractionDigits: 2, maximumFractionDigits: 2 };
+      outJacket.value = jacketValue.toLocaleString(undefined, formatOptions);
+      outSteelPile.value = steelPileValue.toLocaleString(undefined, formatOptions);
+  
+    } catch (e) {
+      console.error("预测异常：", e);
+      alert("计算引擎发生异常，请查看控制台详情");
+      outJacket.value = '预测失败';
+      outSteelPile.value = '预测失败';
+    } finally {
+      // 9. 恢复按钮状态
+      btn.disabled = false;
+      btn.innerText = "预测";
+    }
+  }
+  
+  // 页面加载完成后初始化
+  window.onload = init;
+</script>
+
+</body>
+</html>
