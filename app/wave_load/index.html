@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme="light">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#43313F"/>
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+  <title>海洋工程单桩波浪力计算器 | SigmaTau</title>
+
+  <!-- Bootstrap -->
+  <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css"/>
+  <link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_6peoq002giu.css">
+
+  <style>
+    body {
+      font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, "Microsoft YaHei", sans-serif;
+      background: #f8f9fa;
+      color: #34495e;
+    }
+
+    header {
+      height: 30vh;
+      background: linear-gradient(135deg,#3a3f51,#5b5f73);
+    }
+
+    .tool-card {
+      margin-top: -120px;
+      margin-bottom: 80px;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.12);
+      padding: 40px;
+    }
+
+    h2 {
+      text-align: center;
+      font-weight: 600;
+      margin-bottom: 30px;
+      color: #2c3e50;
+    }
+
+    h5 {
+      font-weight: 600;
+      color: #2c3e50;
+      margin: 15px 0 10px 0;
+      padding-bottom: 5px;
+      border-bottom: 1px solid #e9ecef;
+    }
+
+    label {
+      font-weight: 600;
+      font-size: 14px;
+      color: #6c757d;
+    }
+
+    /* 修复 select 文字被裁切问题 */
+    .form-control {
+      height: calc(1.5em + 0.75rem + 2px);
+      padding: 0.375rem 0.75rem !important;
+      font-size: 14px;
+      line-height: 1.5;
+      border-radius: 8px;
+    }
+
+    input.form-control {
+      padding: 0.5rem 0.75rem !important;
+    }
+
+    input[readonly] {
+      background: #f1f3f5;
+      font-weight: bold;
+      color: #1e3a8a;
+    }
+
+    .btn-primary {
+      border-radius: 8px;
+      padding: 12px;
+      font-weight: bold;
+      box-shadow: 0 6px 12px rgba(30,58,138,0.25);
+    }
+
+    .result-group {
+      margin-top: 30px;
+      padding-top: 25px;
+      border-top: 2px dashed #e9ecef;
+    }
+
+    .result-block {
+      margin-bottom: 20px;
+      padding: 10px;
+      background: #fafbfc;
+      border-radius: 8px;
+    }
+
+    .info-group {
+      margin-top: 25px;
+      padding: 15px;
+      background: #f8f9fa;
+      border-left: 4px solid #f59e0b;
+      border-radius: 6px;
+      font-size: 13px;
+    }
+
+    .error {
+      color: #dc3545;
+      font-weight: bold;
+      margin-top: 10px;
+      display: none;
+      text-align: center;
+    }
+
+    /* 单选框/下拉框样式适配 */
+    .radio-group, .select-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      margin-top: 8px;
+    }
+
+    .radio-item {
+      display: flex;
+      align-items: center;
+    }
+
+    input[type="radio"] {
+      margin-right: 6px;
+      margin-top: 2px;
+    }
+
+    .param-sub-group {
+      margin-top: 15px;
+      padding-left: 10px;
+      border-left: 2px solid #e9ecef;
+    }
+  </style>
+</head>
+
+<body>
+
+<nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-dark">
+  <div class="container">
+    <a class="navbar-brand" href="/"><strong>SigmaTau</strong></a>
+    <div class="collapse navbar-collapse">
+      <ul class="navbar-nav ml-auto text-center">
+        <li class="nav-item"><a class="nav-link" href="/"><i class="iconfont icon-home-fill"></i> 首页</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<header></header>
+
+<main class="container">
+  <div class="col-lg-8 mx-auto tool-card">
+    <h2>海洋工程单桩波浪力计算器</h2>
+
+    <!-- 规范选择（仅保留JTS和NBT） -->
+    <div class="form-group">
+      <label>计算规范选择</label>
+      <div class="radio-group">
+        <div class="radio-item">
+          <input type="radio" name="standard" id="standardJTS" value="JTS" checked>
+          <label for="standardJTS" style="font-weight: 400; margin-bottom: 0;">JTS 145-2015 港口与航道水文规范</label>
+        </div>
+        <div class="radio-item">
+          <input type="radio" name="standard" id="standardNBT" value="NBT">
+          <label for="standardNBT" style="font-weight: 400; margin-bottom: 0;">NBT 11084-2023 海上风电场荷载规范</label>
+        </div>
+      </div>
+    </div>
+
+    <!-- 基础水文参数（静水） -->
+    <div class="form-group">
+      <label>静水波高 Hs (m)</label>
+      <input type="number" id="Hs" class="form-control" value="8.00" step="0.01" min="0">
+    </div>
+    <div class="form-group">
+      <label>静水周期 Ts (s)</label>
+      <input type="number" id="Ts" class="form-control" value="15.00" step="0.01" min="0">
+    </div>
+    <div class="form-group">
+      <label>水深 d (m)</label>
+      <input type="number" id="d" class="form-control" value="30.00" step="0.01" min="0">
+    </div>
+    <div class="form-group">
+      <label>海流速度 Uc (m/s)</label>
+      <input type="number" id="Uc" class="form-control" value="2.0" step="0.01" min="0">
+    </div>
+
+    <!-- 桩体参数 -->
+    <div class="form-group">
+      <label>桩直径 D (m)</label>
+      <input type="number" id="D" class="form-control" value="10.0" step="0.01" min="0">
+    </div>
+    <div class="form-group">
+      <label>基础顶水深 z1 (m)</label>
+      <input type="number" id="z1" class="form-control" value="1.0" step="0.01" min="0">
+    </div>
+    <div class="form-group">
+      <label>基础底水深 z2 (m)</label>
+      <input type="number" id="z2" class="form-control" value="10.0" step="0.01" min="0">
+    </div>
+
+    <!-- 系数参数 -->
+    <div class="form-group">
+      <label>速度力系数 Cd</label>
+      <input type="number" id="Cd" class="form-control" value="1.20" step="0.01" min="0">
+    </div>
+    <div class="form-group">
+      <label>惯性力系数 Cm</label>
+      <input type="number" id="Cm" class="form-control" value="2.00" step="0.01" min="0">
+    </div>
+
+    <!-- 物理参数 -->
+    <div class="form-group">
+      <label>重力加速度 g (N/kg)</label>
+      <input type="number" id="g" class="form-control" value="9.81" step="0.001" min="0">
+    </div>
+    <div class="form-group">
+      <label>流体密度 ρ (kg/m³)</label>
+      <input type="number" id="rho" class="form-control" value="1028.0" step="0.1" min="0">
+    </div>
+
+    <!-- 计算按钮 & 错误提示 -->
+    <button id="calculateBtn" class="btn btn-primary btn-block" onclick="calculateWaveForce()">开始计算</button>
+    <div id="errorMsg" class="error"></div>
+
+    <!-- 结果区域 -->
+    <div class="result-group">
+      <!-- 块1：波浪参数 -->
+      <div class="result-block">
+        <h5>（1）波浪参数</h5>
+        <div class="form-group">
+          <label>静水波高 Hs (m)</label>
+          <input id="res_wave_param_Hs" class="form-control" readonly>
+        </div>
+        <div class="form-group">
+          <label>静水周期 Ts (s)</label>
+          <input id="res_wave_param_Ts" class="form-control" readonly>
+        </div>
+        <div class="form-group">
+          <label>静水中波长 Ls (m)</label>
+          <input id="res_wave_param_Ls" class="form-control" readonly>
+        </div>
+        <div class="form-group">
+          <label>水流变形后波高 H (m)</label>
+          <input id="res_wave_param_H" class="form-control" readonly>
+        </div>
+        <div class="form-group">
+          <label>水流变形后周期 T (s)</label>
+          <input id="res_wave_param_T" class="form-control" readonly>
+        </div>
+        <div class="form-group">
+          <label>水流变形后波长 L (m)</label>
+          <input id="res_wave_param_L" class="form-control" readonly>
+        </div>
+      </div>
+
+      <!-- 块2：波浪力（不受海流影响） -->
+      <div class="result-block">
+        <h5>（2）波浪力（不受海流影响，采用静水参数，<span id="res_standard_name_1">JTS</span> 规范）</h5>
+        <div class="form-group">
+          <label>最大水平力 P_max (N)</label>
+          <input id="res_wave_force_no_current_P" class="form-control" readonly>
+        </div>
+        <div class="form-group">
+          <label>最大力矩 M_max (Nm)</label>
+          <input id="res_wave_force_no_current_M" class="form-control" readonly>
+        </div>
+      </div>
+
+      <!-- 块3：波浪力（受海流影响） -->
+      <div class="result-block">
+        <h5>（3）波浪力（受海流影响，采用水流变形后参数，<span id="res_standard_name_2">JTS</span> 规范）</h5>
+        <div class="form-group">
+          <label>最大水平力 P_max (N)</label>
+          <input id="res_wave_force_with_current_P" class="form-control" readonly>
+        </div>
+        <div class="form-group">
+          <label>最大力矩 M_max (Nm)</label>
+          <input id="res_wave_force_with_current_M" class="form-control" readonly>
+        </div>
+      </div>
+
+      <!-- 块4：海流力 -->
+      <div class="result-block">
+        <h5>（4）海流力（NBT 11084-2023 规范）</h5>
+        <div class="form-group">
+          <label>海流最大水平力 F_current (N)</label>
+          <input id="res_current_force_P" class="form-control" readonly>
+        </div>
+        <div class="form-group">
+          <label>海流最大力矩 M_current (Nm)</label>
+          <input id="res_current_force_M" class="form-control" readonly>
+        </div>
+      </div>
+    </div>
+
+    <!-- 说明区域 -->
+    <div class="info-group">
+      <strong>有关说明：</strong><br>
+      1. 本程序仅针对圆立柱（墩）。<br>
+      2. 小尺度桩定义：D/L ≤ 0.2，大尺度桩定义：D/L ＞ 0.2。<br>
+      3. 波浪参数水流变形计算：考虑极端情况（海流与波浪相反）。<br>
+      4. 输入参数请确保为非负数，避免计算异常。<br>
+      5. 欢迎提交错误。
+    </div>
+
+  </div>
+</main>
+
+<!-- 引入核心计算JS文件（混淆后替换此文件内容即可） -->
+<script src="core-calc.js"></script>
+
+<!-- 页面交互逻辑（仅保留此部分，核心逻辑已隐藏） -->
+<script>
+  function calculateWaveForce() {
+    const btn = document.getElementById("calculateBtn");
+    const errDiv = document.getElementById("errorMsg");
+    // 获取所有结果输出元素
+    const resWaveParamHs = document.getElementById("res_wave_param_Hs");
+    const resWaveParamTs = document.getElementById("res_wave_param_Ts");
+    const resWaveParamLs = document.getElementById("res_wave_param_Ls");
+    const resWaveParamH = document.getElementById("res_wave_param_H");
+    const resWaveParamT = document.getElementById("res_wave_param_T");
+    const resWaveParamL = document.getElementById("res_wave_param_L");
+    const resWaveForceNoCurrentP = document.getElementById("res_wave_force_no_current_P");
+    const resWaveForceNoCurrentM = document.getElementById("res_wave_force_no_current_M");
+    const resStandardName1 = document.getElementById("res_standard_name_1");
+    const resWaveForceWithCurrentP = document.getElementById("res_wave_force_with_current_P");
+    const resWaveForceWithCurrentM = document.getElementById("res_wave_force_with_current_M");
+    const resStandardName2 = document.getElementById("res_standard_name_2");
+    const resCurrentForceP = document.getElementById("res_current_force_P");
+    const resCurrentForceM = document.getElementById("res_current_force_M");
+
+    try {
+      // 1. 重置状态
+      errDiv.style.display = "none";
+      errDiv.innerText = "";
+      [
+        resWaveParamHs, resWaveParamTs, resWaveParamLs, resWaveParamH, resWaveParamT, resWaveParamL,
+        resWaveForceNoCurrentP, resWaveForceNoCurrentM,
+        resWaveForceWithCurrentP, resWaveForceWithCurrentM,
+        resCurrentForceP, resCurrentForceM
+      ].forEach(el => el.value = "");
+      btn.disabled = true;
+      btn.innerText = "计算中...";
+
+      // 2. 获取表单输入参数
+      const params = {
+        standard: document.querySelector('input[name="standard"]:checked').value,
+        Hs: parseFloat(document.getElementById("Hs").value),
+        Ts: parseFloat(document.getElementById("Ts").value),
+        d: parseFloat(document.getElementById("d").value),
+        Uc: parseFloat(document.getElementById("Uc").value),
+        D: parseFloat(document.getElementById("D").value),
+        z1: parseFloat(document.getElementById("z1").value),
+        z2: parseFloat(document.getElementById("z2").value),
+        Cd: parseFloat(document.getElementById("Cd").value),
+        Cm: parseFloat(document.getElementById("Cm").value),
+        g: parseFloat(document.getElementById("g").value),
+        rho: parseFloat(document.getElementById("rho").value),
+      };
+
+      // 3. 验证参数有效性（修复重复rho bug）
+      const requiredParams = ["Hs", "Ts", "d", "Uc", "D", "z1", "z2", "Cd", "Cm", "g", "rho"];
+      for (const key of requiredParams) {
+        if (isNaN(params[key]) || params[key] < 0) {
+          throw new Error(`参数 ${key} 输入无效，请输入非负数字！`);
+        }
+      }
+
+      // 4. 规范名称映射（用于结果展示）
+      const standardNameMap = {
+        "JTS": "JTS 145-2015 港口与航道水文",
+        "NBT": "NBT 11084-2023 海上风电场荷载"
+      };
+      const currentStandardName = standardNameMap[params.standard];
+      resStandardName1.innerText = currentStandardName;
+      resStandardName2.innerText = currentStandardName;
+
+      // 5. 核心计算流程
+      // 5.1 计算静水中波长
+      const Ls = waveLength(params.Ts, params.d, params.g);
+
+      // 5.2 计算波浪参数水流变形
+      let L, H, T;
+      if (params.Uc !== 0.0) {
+        [L, H, T] = waveOfCurrent(Ls, params.Hs, -params.Uc, params.D, params.g);
+      } else {
+        [L, H, T] = [Ls, params.Hs, params.Ts];
+      }
+
+      // 5.3 求解不受海流影响的波浪力
+      let P_no_current, M_no_current;
+      switch (params.standard) {
+        case "JTS":
+          [P_no_current, M_no_current] = loadLinearWaveJTS(
+            params.D, params.z1, params.z2, params.Hs, Ls, params.d,
+            params.Cd, params.Cm, params.rho, params.g
+          );
+          break;
+        case "NBT":
+          [P_no_current, M_no_current] = loadLinearWaveBook(
+            params.D, params.z1, params.z2, params.Hs, Ls, params.d,
+            params.Cd, params.Cm, params.rho, params.g
+          );
+          break;
+      }
+
+      // 5.4 求解受海流影响的波浪力
+      let P_with_current, M_with_current;
+      switch (params.standard) {
+        case "JTS":
+          [P_with_current, M_with_current] = loadLinearWaveJTS(
+            params.D, params.z1, params.z2, H, L, params.d,
+            params.Cd, params.Cm, params.rho, params.g
+          );
+          break;
+        case "NBT":
+          [P_with_current, M_with_current] = loadLinearWaveBook(
+            params.D, params.z1, params.z2, H, L, params.d,
+            params.Cd, params.Cm, params.rho, params.g
+          );
+          break;
+      }
+
+      // 5.5 求解海流力
+      const [F1, M1] = loadLinearCurrentNBT(
+        params.D, params.z1, params.z2, params.Uc, params.Cd, params.rho
+      );
+
+      // 6. 格式化并展示结果（保留6位小数，不分组）
+      const formatOptions = { minimumFractionDigits: 2, maximumFractionDigits: 6, useGrouping: false };
+      resWaveParamHs.value = params.Hs.toLocaleString(undefined, formatOptions);
+      resWaveParamTs.value = params.Ts.toLocaleString(undefined, formatOptions);
+      resWaveParamLs.value = Ls.toLocaleString(undefined, formatOptions);
+      resWaveParamH.value = H.toLocaleString(undefined, formatOptions);
+      resWaveParamT.value = T.toLocaleString(undefined, formatOptions);
+      resWaveParamL.value = L.toLocaleString(undefined, formatOptions);
+      resWaveForceNoCurrentP.value = P_no_current.toLocaleString(undefined, formatOptions);
+      resWaveForceNoCurrentM.value = M_no_current.toLocaleString(undefined, formatOptions);
+      resWaveForceWithCurrentP.value = P_with_current.toLocaleString(undefined, formatOptions);
+      resWaveForceWithCurrentM.value = M_with_current.toLocaleString(undefined, formatOptions);
+      resCurrentForceP.value = F1.toLocaleString(undefined, formatOptions);
+      resCurrentForceM.value = M1.toLocaleString(undefined, formatOptions);
+
+    } catch (e) {
+      // 7. 错误处理
+      errDiv.innerText = e.message;
+      errDiv.style.display = "block";
+      console.error(e);
+    } finally {
+      // 8. 恢复按钮状态
+      btn.disabled = false;
+      btn.innerText = "开始计算";
+    }
+  }
+
+  // 页面加载完成后初始化（规范切换更新标题）
+  window.onload = function() {
+    const standardRadios = document.querySelectorAll('input[name="standard"]');
+    const resStandardName1 = document.getElementById("res_standard_name_1");
+    const resStandardName2 = document.getElementById("res_standard_name_2");
+    const standardNameMap = {
+      "JTS": "JTS 145-2015 港口与航道水文",
+      "NBT": "NBT 11084-2023 海上风电场荷载"
+    };
+
+    standardRadios.forEach(radio => {
+      radio.addEventListener("change", function() {
+        const currentStandardName = standardNameMap[this.value];
+        resStandardName1.innerText = currentStandardName;
+        resStandardName2.innerText = currentStandardName;
+      });
+    });
+  };
+</script>
+
+</body>
+</html>
