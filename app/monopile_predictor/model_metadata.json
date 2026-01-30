@@ -1,0 +1,20 @@
+{
+  "feature_names": [
+    "省份",
+    "距离",
+    "容量",
+    "水深"
+  ],
+  "target_names": [
+    "重量",
+    "顶部直径",
+    "底部直径",
+    "总桩长",
+    "附属构件重量"
+  ],
+  "num_targets": 5,
+  "num_provinces": 9,
+  "model_type": "MultiOutputRegression",
+  "transformation": "log1p",
+  "version": "2.0"
+}
