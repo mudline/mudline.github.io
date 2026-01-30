@@ -1,361 +1,184 @@
----
-title: 海上风电单桩数据快速评估工具
-date: 2026-01-01 00:00:00
-type: "page"
-layout: "page"
-typora-root-url: ..
----
-
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-default-color-scheme="light">
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
-  <meta name="theme-color" content="#202020"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#43313F"/>
   <meta http-equiv="x-ua-compatible" content="ie=edge">
-  
-  <!-- <link rel="icon" type="image/x-icon" href="/images/favicon.ico"> -->
-  
-  <!-- 引入Pure.css样式 -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css" integrity="sha384-X38yfunGUhNzHpBaEBsWLO+A0HDYOQi8ufWDkZ0k9e0eXz/tH3II7uKZ9msv++Ls" crossorigin="anonymous">
-  
-  <!-- 自定义样式（已移除页面自身边框） -->
+
+  <title>海上风电单桩数据快速评估工具 | SigmaTau</title>
+
+  <!-- Bootstrap -->
+  <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css"/>
+  <link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_6peoq002giu.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/blueimp-md5@2.19.0/js/md5.min.js"></script>
+
   <style>
-    :root {
-      --primary-color: #1e3a8a;
-      --accent-color: #28a745;
-      --warning-color: #f59e0b;
-      --bg-color: #f0f2f5;
-      --card-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    body {
+      font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, "Microsoft YaHei", sans-serif;
+      background: #f8f9fa;
+      color: #34495e;
     }
 
-    body { 
-      font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, "Microsoft YaHei", sans-serif; 
-      background-color: var(--bg-color); 
-      margin: 0; 
-      padding: 0;
-      color: #334155;
-      line-height: 1.6;
+    header {
+      height: 30vh;
+      background: linear-gradient(135deg,#3a3f51,#5b5f73);
     }
-    
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 30px 20px;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-sizing: border-box;
+
+    .tool-card {
+      margin-top: -120px;
+      margin-bottom: 80px;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.12);
+      padding: 40px;
     }
-    
-    .inner {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      width: 100%;
+
+    h2 {
+      text-align: center;
+      font-weight: 600;
+      margin-bottom: 30px;
+      color: #2c3e50;
     }
-    
-    .content-wrapper {
-      background: white; 
-      padding: 40px; 
-      border-radius: 16px; 
-      box-shadow: var(--card-shadow); 
-      width: 100%;
-      max-width: 500px;
-      /* 已移除：原页面自身的顶部边框 */
-      margin: 20px 0;
+
+    label {
+      font-weight: 600;
+      font-size: 14px;
+      color: #6c757d;
     }
-    
-    h2 { 
-      text-align: center; 
-      color: var(--primary-color); 
-      margin-top: 0;
-      margin-bottom: 30px; 
-      font-size: 24px;
-      letter-spacing: 1px;
+
+    /* ✅ 修复 select 文字被裁切问题 */
+    .form-control {
+      height: calc(1.5em + 0.75rem + 2px);
+      padding: 0.375rem 0.75rem !important;
+      font-size: 14px;
+      line-height: 1.5;
+      border-radius: 8px;
     }
-    
-    .input-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 15px;
+
+    input.form-control {
+      padding: 0.5rem 0.75rem !important;
     }
-    
-    .form-group { margin-bottom: 5px; }
-    
-    label { 
-      display: block; 
-      margin-bottom: 8px; 
-      color: #64748b; 
-      font-weight: 600; 
-      font-size: 14px; 
-    }
-    
-    select, input { 
-      width: 100%; 
-      padding: 12px 15px; 
-      border: 1.5px solid #e2e8f0; 
-      border-radius: 8px; 
-      font-size: 14px; 
-      transition: all 0.2s ease;
-      background-color: #fff;
-      box-sizing: border-box;
-    }
-    
-    select:focus, input:focus { 
-      border-color: var(--primary-color); 
-      box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
-      outline: none;
-    }
-    
-    input[readonly] { 
-      background-color: #f1f5f9; 
-      color: var(--primary-color); 
-      font-weight: bold; 
-      border: 1.5px solid #cbd5e1;
-    }
-    
-    button { 
-      width: 100%; 
-      padding: 14px; 
-      background-color: var(--primary-color); 
-      color: white; 
-      border: none; 
-      border-radius: 8px; 
-      font-size: 16px; 
-      cursor: pointer; 
-      transition: all 0.3s; 
-      margin-top: 25px; 
+
+    input[readonly] {
+      background: #f1f3f5;
       font-weight: bold;
-      box-shadow: 0 4px 6px rgba(30, 58, 138, 0.2);
+      color: #1e3a8a;
     }
-    
-    button:hover { 
-      background-color: #1e40af; 
-      transform: translateY(-1px);
+
+    .btn-primary {
+      border-radius: 8px;
+      padding: 12px;
+      font-weight: bold;
+      box-shadow: 0 6px 12px rgba(30,58,138,0.25);
     }
-    
-    button:disabled { background-color: #94a3b8; cursor: not-allowed; }
-    
-    .result-group { 
+
+    .result-group {
       margin-top: 30px;
       padding-top: 25px;
-      border-top: 2px dashed #f1f5f9;
+      border-top: 2px dashed #e9ecef;
     }
-    
-    .info-group { 
-      margin-top: 25px; 
+
+    .info-group {
+      margin-top: 25px;
       padding: 15px;
-      background-color: #f8fafc;
-      border-left: 4px solid var(--warning-color);
-      border-radius: 4px;
+      background: #f8f9fa;
+      border-left: 4px solid #f59e0b;
+      border-radius: 6px;
+      font-size: 13px;
     }
-    
-    .info-text { font-size: 13px; color: #475569; line-height: 1.6; margin: 0; }
-    
-    .error { color: #ef4444; font-size: 13px; margin-top: 10px; display: none; text-align: center; font-weight: bold; }
-    
-    /* 响应式调整 */
-    @media (max-width: 768px) {
-      .content-wrapper {
-        padding: 25px;
-        margin: 10px 0;
-      }
-    }
-    
-    @media (max-width: 480px) {
-      .content-wrapper {
-        padding: 20px;
-      }
-      
-      h2 {
-        font-size: 20px;
-      }
-      
-      .container {
-        padding: 15px 10px;
-      }
+
+    .error {
+      color: #dc3545;
+      font-weight: bold;
+      margin-top: 10px;
+      display: none;
+      text-align: center;
     }
   </style>
-  
-  <!-- 引入ONNX Runtime -->
+
   <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.js"></script>
 </head>
 
 <body>
-<!-- 主要内容 -->
-<div class="container">
-  <div class="inner">
-    <div class="content-wrapper">
-      <h2>海上风电单桩数据快速评估工具</h2>
 
-      <div class="input-grid">
-        <div class="form-group full-width">
-          <label>省份 (Province)</label>
-          <select id="province">
-            <option value="">模型初始化中...</option>
-          </select>
-        </div>
-    
-        <div class="form-group">
-          <label>离岸距离 (km)</label>
-          <input type="number" id="distance" step="0.0001" placeholder="0.00">
-        </div>
-    
-        <div class="form-group">
-          <label>单机容量 (MW)</label>
-          <input type="number" id="capacity" step="0.0001" placeholder="0.00">
-        </div>
-    
-        <div class="form-group">
-          <label>场址水深 (m)</label>
-          <input type="number" id="depth" step="0.0001" placeholder="0.00">
-        </div>
-    
-        <div class="form-group">
-          <label>授权密码</label>
-          <input type="password" id="password" placeholder="请输入密码">
-        </div>
-      </div>
-    
-      <button id="predictBtn" onclick="runPrediction()">预测</button>
-      <div id="errorMsg" class="error"></div>
-    
-      <div class="result-group">
-        <div class="form-group">
-          <label>单桩重量预测 (t)</label>
-          <input type="text" id="res_weight" readonly placeholder="---">
-        </div>
-        <div class="form-group">
-          <label>顶部直径 (m)</label>
-          <input type="text" id="res_top_diameter" readonly placeholder="---">
-        </div>
-        <div class="form-group">
-          <label>底部直径 (m)</label>
-          <input type="text" id="res_bottom_diameter" readonly placeholder="---">
-        </div>
-        <div class="form-group">
-          <label>总桩长 (m)</label>
-          <input type="text" id="res_total_length" readonly placeholder="---">
-        </div>
-        <div class="form-group">
-          <label>附属构件重量 (t)</label>
-          <input type="text" id="res_accessory_weight" readonly placeholder="---">
-        </div>
-      </div>
-    
-      <div class="info-group">
-        <p class="info-text"><strong>有关说明：</strong></p>
-        <p class="info-text">
-          1. 模型基于Pipeline: Log-GBDT 机器学习架构。<br>
-          2. 仅用于方案前期快速估算，不对数据准确性负责。<br>
-          3. 单机容量限值：5.2MW~18.0MW。<br>
-          4. 场址水深限值：8.0m~40.0m。<br>
-          5. 离岸距离限值：10km~85km。<br>
-		  6. 附属构件重量包括套笼、靠船及爬梯、内平台、外平台。<br>
-          7. 当前数据库样本容量：233 组。<br>
-          8. 当前仅限内部使用。<br>
-          9. 数据库持续更新中，欢迎提交补充。</p>
-      </div>
+<nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-dark">
+  <div class="container">
+    <a class="navbar-brand" href="#"><strong>SigmaTau</strong></a>
+    <div class="collapse navbar-collapse">
+      <ul class="navbar-nav ml-auto text-center">
+        <li class="nav-item"><a class="nav-link" href="/"><i class="iconfont icon-home-fill"></i> 首页</a></li>
+        <!-- <li class="nav-item"><a class="nav-link" href="#"><i class="iconfont icon-archive-fill"></i> 汇总</a></li> -->
+        <!-- <li class="nav-item"><a class="nav-link" href="#"><i class="iconfont icon-category-fill"></i> 分类</a></li> -->
+        <!-- <li class="nav-item"><a class="nav-link" href="#"><i class="iconfont icon-tags-fill"></i> 标签</a></li> -->
+        <!-- <li class="nav-item"><a class="nav-link" href="#"><i class="iconfont icon-user-fill"></i> 关于</a></li> -->
+      </ul>
     </div>
   </div>
-</div>
+</nav>
+
+<header></header>
+
+<main class="container">
+  <div class="col-lg-8 mx-auto tool-card">
+
+    <h2>海上风电单桩数据快速评估工具</h2>
+
+    <div class="form-group">
+      <label>省份 (Province)</label>
+      <select id="province" class="form-control">
+        <option>模型初始化中...</option>
+      </select>
+    </div>
+
+    <div class="form-group"><label>离岸距离 (km)</label><input type="number" id="distance" class="form-control"></div>
+    <div class="form-group"><label>单机容量 (MW)</label><input type="number" id="capacity" class="form-control"></div>
+    <div class="form-group"><label>场址水深 (m)</label><input type="number" id="depth" class="form-control"></div>
+    <div class="form-group"><label>授权密码</label><input type="password" id="password" class="form-control"></div>
+
+    <button id="predictBtn" class="btn btn-primary btn-block" onclick="runPrediction()">预测</button>
+    <div id="errorMsg" class="error"></div>
+
+    <div class="result-group">
+      <div class="form-group"><label>单桩重量预测 (t)</label><input id="res_weight" class="form-control" readonly></div>
+      <div class="form-group"><label>顶部直径 (m)</label><input id="res_top_diameter" class="form-control" readonly></div>
+      <div class="form-group"><label>底部直径 (m)</label><input id="res_bottom_diameter" class="form-control" readonly></div>
+      <div class="form-group"><label>总桩长 (m)</label><input id="res_total_length" class="form-control" readonly></div>
+      <div class="form-group"><label>附属构件重量 (t)</label><input id="res_accessory_weight" class="form-control" readonly></div>
+    </div>
+
+    <div class="info-group">
+      <strong>有关说明：</strong><br>
+      1. 模型基于 Log-GBDT 架构。<br>
+      2. 仅用于前期快速估算。<br>
+      3. 单机容量：5.2MW~18.0MW。<br>
+      4. 水深：8m~40m。<br>
+      5. 离岸距离：10km~85km。<br>
+      6. 含套笼、靠船、爬梯、平台等附属构件。<br>
+      7. 数据样本量：233 组。
+    </div>
+
+  </div>
+</main>
+
+<script src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js"></script>
+<script src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js"></script>
 
 <script>
-  let session = null;
-  let provinceMap = [];
-  
-  async function init() {
-    try {
-      const resp = await fetch('./provinces.json');
-      provinceMap = await resp.json();
-      const sel = document.getElementById('province');
-      sel.innerHTML = '';
-      provinceMap.forEach((p, index) => {
-        const opt = document.createElement('option');
-        opt.value = index; 
-        opt.text = p;
-        sel.appendChild(opt);
-      });
-      session = await ort.InferenceSession.create('./model.onnx');
-    } catch (e) {
-      console.error(e);
-      document.getElementById('errorMsg').innerText = "系统就绪失败，请联系管理员检查模型资源";
-      document.getElementById('errorMsg').style.display = 'block';
-    }
-  }
-  
-  async function runPrediction() {
-    const btn = document.getElementById('predictBtn');
-    const errDiv = document.getElementById('errorMsg');
-    const pwd = document.getElementById('password').value;
-  
-    // 获取所有输出元素
-    const outWeight = document.getElementById('res_weight');
-    const outTopDiameter = document.getElementById('res_top_diameter');
-    const outBottomDiameter = document.getElementById('res_bottom_diameter');
-    const outTotalLength = document.getElementById('res_total_length');
-    const outAccessoryWeight = document.getElementById('res_accessory_weight');
-  
-    if (pwd !== '106') {
-      outWeight.value = 'password error!';
-      outTopDiameter.value = 'password error!';
-      outBottomDiameter.value = 'password error!';
-      outTotalLength.value = 'password error!';
-      outAccessoryWeight.value = 'password error!';
-      return;
-    }
-  
-    const p_code = parseFloat(document.getElementById('province').value);
-    const dist = parseFloat(document.getElementById('distance').value);
-    const cap = parseFloat(document.getElementById('capacity').value);
-    const depth = parseFloat(document.getElementById('depth').value);
-  
-    if (isNaN(dist) || dist <= 0 || isNaN(cap) || cap <= 0 || isNaN(depth) || depth <= 0) {
-      alert("请核对输入参数，确保所有数值为正数！");
-      return;
-    }
-  
-    if (!session) return;
-  
-    try {
-      btn.disabled = true;
-      btn.innerText = "引擎处理中...";
-      
-      const inputData = Float32Array.from([p_code, dist, cap, depth]);
-      const tensor = new ort.Tensor('float32', inputData, [1, 4]);
-      const results = await session.run({ float_input: tensor });
-      const output = results.variable.data; 
-  
-      // 处理5个输出值
-      const weight = Math.max(0, Math.expm1(output[0]));
-      const topDiameter = Math.max(0, Math.expm1(output[1]));
-      const bottomDiameter = Math.max(0, Math.expm1(output[2]));
-      const totalLength = Math.max(0, Math.expm1(output[3]));
-      const accessoryWeight = Math.max(0, Math.expm1(output[4]));
-  
-      // 格式化并显示结果
-      const formatOptions = {minimumFractionDigits: 2, maximumFractionDigits: 2};
-      
-      outWeight.value = weight.toLocaleString(undefined, formatOptions);
-      outTopDiameter.value = topDiameter.toLocaleString(undefined, formatOptions);
-      outBottomDiameter.value = bottomDiameter.toLocaleString(undefined, formatOptions);
-      outTotalLength.value = totalLength.toLocaleString(undefined, formatOptions);
-      outAccessoryWeight.value = accessoryWeight.toLocaleString(undefined, formatOptions);
-  
-    } catch (e) {
-      console.error(e);
-      alert("计算引擎发生异常");
-    } finally {
-      btn.disabled = false;
-      btn.innerText = "预测";
-    }
-  }
-  
-  window.onload = init;
+let session=null;let provinceMap=[];
+const CORRECT_PWD_MD5="f0935e4cd5920aa6c7c996a5ee53a70f";
+async function init(){try{const resp=await fetch('./provinces.json');provinceMap=await resp.json();const sel=document.getElementById('province');sel.innerHTML='';provinceMap.forEach((p,index)=>{const opt=document.createElement('option');opt.value=index;opt.text=p;sel.appendChild(opt);});session=await ort.InferenceSession.create('./model.onnx');}catch(e){errorMsg.innerText="系统就绪失败";errorMsg.style.display='block';}}
+async function runPrediction(){const btn=predictBtn;const pwd=password.value;const out=[res_weight,res_top_diameter,res_bottom_diameter,res_total_length,res_accessory_weight];if(md5(pwd)!==CORRECT_PWD_MD5){out.forEach(o=>o.value='password error!');return;}
+const p_code=parseFloat(province.value);const dist=parseFloat(distance.value);const cap=parseFloat(capacity.value);const depth=parseFloat(depth.value);if(isNaN(dist)||dist<=0||isNaN(cap)||cap<=0||isNaN(depth)||depth<=0){alert("请核对输入参数");return;}if(!session)return;
+try{btn.disabled=true;btn.innerText="引擎处理中...";const tensor=new ort.Tensor('float32',Float32Array.from([p_code,dist,cap,depth]),[1,4]);const output=(await session.run({float_input:tensor})).variable.data;
+[out[0].value,out[1].value,out[2].value,out[3].value,out[4].value]=output.map(v=>Math.max(0,Math.expm1(v)).toFixed(2));}
+catch(e){alert("计算异常");}finally{btn.disabled=false;btn.innerText="预测";}}
+window.onload=init;
 </script>
+
+
 
 </body>
 </html>
