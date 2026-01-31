@@ -155,19 +155,24 @@
       2. 仅用于前期快速估算。<br>
       3. 单机容量：5.2MW~18.0MW。<br>
       4. 水深：8m~40m。<br>
-      5. 离岸距离：10km~85km。<br>
+      5. 离岸距离：8km~85km。<br>
       6. 附属构件重量含套笼、靠船、爬梯、平台等附属构件。<br>
-      7. 数据样本量：233 组。
+      7. 数据样本量：224 组。
     </div>
 
   </div>
 </main>
 
-
-
 <script>
   let session = null;
   let provinceMap = [];
+  
+  // ✅ 修改：0.1精度四舍五入辅助函数（核心逻辑更新）
+  function roundToTenth(num) {
+    // 逻辑：先放大10倍四舍五入，再缩小10倍，得到0.1步长的结果
+    // 1 / 0.1 = 10，这是0.1精度四舍五入的核心换算关系
+    return Math.round(num * 10) / 10;
+  }
   
   async function init() {
     try {
@@ -238,14 +243,17 @@
       const totalLength = Math.max(0, Math.expm1(output[3]));
       const accessoryWeight = Math.max(0, Math.expm1(output[4]));
   
-      // 格式化并显示结果
-      const formatOptions = {minimumFractionDigits: 2, maximumFractionDigits: 2};
+      // 格式化配置：区分0.1精度（1位小数）和原有2位小数
+      const formatOptionsTwo = {minimumFractionDigits: 2, maximumFractionDigits: 2};
+      const formatOptionsOne = {minimumFractionDigits: 1, maximumFractionDigits: 1};
       
-      outWeight.value = weight.toLocaleString(undefined, formatOptions);
-      outTopDiameter.value = topDiameter.toLocaleString(undefined, formatOptions);
-      outBottomDiameter.value = bottomDiameter.toLocaleString(undefined, formatOptions);
-      outTotalLength.value = totalLength.toLocaleString(undefined, formatOptions);
-      outAccessoryWeight.value = accessoryWeight.toLocaleString(undefined, formatOptions);
+      outWeight.value = weight.toLocaleString(undefined, formatOptionsTwo);
+      // ✅ 修改：顶部直径先经过0.1精度四舍五入，再用1位小数格式化
+      outTopDiameter.value = roundToTenth(topDiameter).toLocaleString(undefined, formatOptionsOne);
+      // ✅ 修改：底部直径先经过0.1精度四舍五入，再用1位小数格式化
+      outBottomDiameter.value = roundToTenth(bottomDiameter).toLocaleString(undefined, formatOptionsOne);
+      outTotalLength.value = totalLength.toLocaleString(undefined, formatOptionsTwo);
+      outAccessoryWeight.value = accessoryWeight.toLocaleString(undefined, formatOptionsTwo);
   
     } catch (e) {
       console.error(e);
@@ -258,8 +266,6 @@
   
   window.onload = init;
 </script>
-
-
 
 </body>
 </html>

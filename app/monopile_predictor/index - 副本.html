@@ -106,7 +106,7 @@
 
 <nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-dark">
   <div class="container">
-    <a class="navbar-brand" href="#"><strong>SigmaTau</strong></a>
+    <a class="navbar-brand" href="/"><strong>SigmaTau</strong></a>
     <div class="collapse navbar-collapse">
       <ul class="navbar-nav ml-auto text-center">
         <li class="nav-item"><a class="nav-link" href="/"><i class="iconfont icon-home-fill"></i> 首页</a></li>
@@ -155,27 +155,108 @@
       2. 仅用于前期快速估算。<br>
       3. 单机容量：5.2MW~18.0MW。<br>
       4. 水深：8m~40m。<br>
-      5. 离岸距离：10km~85km。<br>
-      6. 含套笼、靠船、爬梯、平台等附属构件。<br>
-      7. 数据样本量：233 组。
+      5. 离岸距离：8km~85km。<br>
+      6. 附属构件重量含套笼、靠船、爬梯、平台等附属构件。<br>
+      7. 数据样本量：224 组。
     </div>
 
   </div>
 </main>
 
-<script src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js"></script>
-<script src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js"></script>
+
 
 <script>
-let session=null;let provinceMap=[];
-const CORRECT_PWD_MD5="f0935e4cd5920aa6c7c996a5ee53a70f";
-async function init(){try{const resp=await fetch('./provinces.json');provinceMap=await resp.json();const sel=document.getElementById('province');sel.innerHTML='';provinceMap.forEach((p,index)=>{const opt=document.createElement('option');opt.value=index;opt.text=p;sel.appendChild(opt);});session=await ort.InferenceSession.create('./model.onnx');}catch(e){errorMsg.innerText="系统就绪失败";errorMsg.style.display='block';}}
-async function runPrediction(){const btn=predictBtn;const pwd=password.value;const out=[res_weight,res_top_diameter,res_bottom_diameter,res_total_length,res_accessory_weight];if(md5(pwd)!==CORRECT_PWD_MD5){out.forEach(o=>o.value='password error!');return;}
-const p_code=parseFloat(province.value);const dist=parseFloat(distance.value);const cap=parseFloat(capacity.value);const depth=parseFloat(depth.value);if(isNaN(dist)||dist<=0||isNaN(cap)||cap<=0||isNaN(depth)||depth<=0){alert("请核对输入参数");return;}if(!session)return;
-try{btn.disabled=true;btn.innerText="引擎处理中...";const tensor=new ort.Tensor('float32',Float32Array.from([p_code,dist,cap,depth]),[1,4]);const output=(await session.run({float_input:tensor})).variable.data;
-[out[0].value,out[1].value,out[2].value,out[3].value,out[4].value]=output.map(v=>Math.max(0,Math.expm1(v)).toFixed(2));}
-catch(e){alert("计算异常");}finally{btn.disabled=false;btn.innerText="预测";}}
-window.onload=init;
+  let session = null;
+  let provinceMap = [];
+  
+  async function init() {
+    try {
+      const resp = await fetch('./provinces.json');
+      provinceMap = await resp.json();
+      const sel = document.getElementById('province');
+      sel.innerHTML = '';
+      provinceMap.forEach((p, index) => {
+        const opt = document.createElement('option');
+        opt.value = index; 
+        opt.text = p;
+        sel.appendChild(opt);
+      });
+      session = await ort.InferenceSession.create('./model.onnx');
+    } catch (e) {
+      console.error(e);
+      document.getElementById('errorMsg').innerText = "系统就绪失败，请联系管理员检查模型资源";
+      document.getElementById('errorMsg').style.display = 'block';
+    }
+  }
+  
+  async function runPrediction() {
+    const btn = document.getElementById('predictBtn');
+    const errDiv = document.getElementById('errorMsg');
+    const pwd = document.getElementById('password').value;
+  
+    // 获取所有输出元素
+    const outWeight = document.getElementById('res_weight');
+    const outTopDiameter = document.getElementById('res_top_diameter');
+    const outBottomDiameter = document.getElementById('res_bottom_diameter');
+    const outTotalLength = document.getElementById('res_total_length');
+    const outAccessoryWeight = document.getElementById('res_accessory_weight');
+  
+    if (pwd !== '106') {
+      outWeight.value = 'password error!';
+      outTopDiameter.value = 'password error!';
+      outBottomDiameter.value = 'password error!';
+      outTotalLength.value = 'password error!';
+      outAccessoryWeight.value = 'password error!';
+      return;
+    }
+  
+    const p_code = parseFloat(document.getElementById('province').value);
+    const dist = parseFloat(document.getElementById('distance').value);
+    const cap = parseFloat(document.getElementById('capacity').value);
+    const depth = parseFloat(document.getElementById('depth').value);
+  
+    if (isNaN(dist) || dist <= 0 || isNaN(cap) || cap <= 0 || isNaN(depth) || depth <= 0) {
+      alert("请核对输入参数，确保所有数值为正数！");
+      return;
+    }
+  
+    if (!session) return;
+  
+    try {
+      btn.disabled = true;
+      btn.innerText = "引擎处理中...";
+      
+      const inputData = Float32Array.from([p_code, dist, cap, depth]);
+      const tensor = new ort.Tensor('float32', inputData, [1, 4]);
+      const results = await session.run({ float_input: tensor });
+      const output = results.variable.data; 
+  
+      // 处理5个输出值
+      const weight = Math.max(0, Math.expm1(output[0]));
+      const topDiameter = Math.max(0, Math.expm1(output[1]));
+      const bottomDiameter = Math.max(0, Math.expm1(output[2]));
+      const totalLength = Math.max(0, Math.expm1(output[3]));
+      const accessoryWeight = Math.max(0, Math.expm1(output[4]));
+  
+      // 格式化并显示结果
+      const formatOptions = {minimumFractionDigits: 2, maximumFractionDigits: 2};
+      
+      outWeight.value = weight.toLocaleString(undefined, formatOptions);
+      outTopDiameter.value = topDiameter.toLocaleString(undefined, formatOptions);
+      outBottomDiameter.value = bottomDiameter.toLocaleString(undefined, formatOptions);
+      outTotalLength.value = totalLength.toLocaleString(undefined, formatOptions);
+      outAccessoryWeight.value = accessoryWeight.toLocaleString(undefined, formatOptions);
+  
+    } catch (e) {
+      console.error(e);
+      alert("计算引擎发生异常");
+    } finally {
+      btn.disabled = false;
+      btn.innerText = "预测";
+    }
+  }
+  
+  window.onload = init;
 </script>
 
 
