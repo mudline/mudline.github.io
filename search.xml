@@ -4,31 +4,6 @@
   
     
     <entry>
-      <title>海上风电单桩数据快速评估工具</title>
-      <link href="/post/app_monopile_predictor/"/>
-      <url>/post/app_monopile_predictor/</url>
-      
-        <content type="html"><![CDATA[<p>用于快速评估海上风电项目前期单桩基础工程量。</p><a id="more"></a><p>&lt;!DOCTYPE html&gt;</p><html>    <head>        <noscript>            <!-- 如果用户禁用JavaScript，使用meta跳转 -->            <meta http-equiv="refresh" content="0;url=/app/monopile_predictor/">        </noscript>        <script>            // 主方法：JavaScript跳转            window.location.replace("/app/monopile_predictor/");        </script>    <meta name="generator" content="Hexo 4.2.1"><link rel="alternate" href="/atom.xml" title="SigmaTau" type="application/atom+xml"></head>    <body>        <!-- 如果以上都失败，显示手动链接 -->        <p>页面已跳转，如果未自动跳转，请 <a href="/app/monopile_predictor/">点击这里</a></p>    </body></html>]]></content>
-      
-      
-      <categories>
-          
-          <category> APP </category>
-          
-      </categories>
-      
-      
-        <tags>
-            
-            <tag> APP </tag>
-            
-        </tags>
-      
-    </entry>
-    
-    
-    
-    <entry>
       <title>海上风电导管架数据快速评估工具</title>
       <link href="/post/app_jacket_predictor/"/>
       <url>/post/app_jacket_predictor/</url>
@@ -59,6 +34,31 @@
       <url>/post/app_wave_load/</url>
       
         <content type="html"><![CDATA[<p>用于快速评估海洋工程单桩波浪荷载。</p><a id="more"></a><p>&lt;!DOCTYPE html&gt;</p><html>    <head>        <noscript>            <!-- 如果用户禁用JavaScript，使用meta跳转 -->            <meta http-equiv="refresh" content="0;url=/app/wave_load/">        </noscript>        <script>            // 主方法：JavaScript跳转            window.location.replace("/app/wave_load/");        </script>    <meta name="generator" content="Hexo 4.2.1"><link rel="alternate" href="/atom.xml" title="SigmaTau" type="application/atom+xml"></head>    <body>        <!-- 如果以上都失败，显示手动链接 -->        <p>页面已跳转，如果未自动跳转，请 <a href="/app/wave_load/">点击这里</a></p>    </body></html>]]></content>
+      
+      
+      <categories>
+          
+          <category> APP </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> APP </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>海上风电单桩数据快速评估工具</title>
+      <link href="/post/app_monopile_predictor/"/>
+      <url>/post/app_monopile_predictor/</url>
+      
+        <content type="html"><![CDATA[<p>用于快速评估海上风电项目前期单桩基础工程量。</p><a id="more"></a><p>&lt;!DOCTYPE html&gt;</p><html>    <head>        <noscript>            <!-- 如果用户禁用JavaScript，使用meta跳转 -->            <meta http-equiv="refresh" content="0;url=/app/monopile_predictor/">        </noscript>        <script>            // 主方法：JavaScript跳转            window.location.replace("/app/monopile_predictor/");        </script>    <meta name="generator" content="Hexo 4.2.1"><link rel="alternate" href="/atom.xml" title="SigmaTau" type="application/atom+xml"></head>    <body>        <!-- 如果以上都失败，显示手动链接 -->        <p>页面已跳转，如果未自动跳转，请 <a href="/app/monopile_predictor/">点击这里</a></p>    </body></html>]]></content>
       
       
       <categories>
