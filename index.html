@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <!-- 核心：0秒无延迟跳转，删除延迟数值就是即时跳转 -->
+    <meta http-equiv="refresh" content="0; url=https://sigmatau.pages.dev/">
+    <title>正在前往目标页面...</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            /* 柔和的渐变背景 */
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-family: "Microsoft YaHei", Arial, sans-serif;
+            color: #fff;
+            /* 文字抗锯齿，更清晰 */
+            -webkit-font-smoothing: antialiased;
+        }
+        /* 加载动画 */
+        .loader {
+            width: 48px;
+            height: 48px;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-bottom: 20px;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        /* 提示文字样式 */
+        .text {
+            font-size: 18px;
+            margin-bottom: 15px;
+            letter-spacing: 1px;
+        }
+        /* 备用链接美化 */
+        .backup-link {
+            color: #fff;
+            text-decoration: none;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.5);
+            padding-bottom: 2px;
+            transition: all 0.3s ease;
+        }
+        .backup-link:hover {
+            border-color: #fff;
+            color: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+    <!-- 加载动画 -->
+    <div class="loader"></div>
+    <!-- 提示文字 -->
+    <div class="text">正在为您跳转...</div>
+    <!-- 备用链接（美化版） -->
+    <div>若未自动跳转，请<a href="https://sigmatau.pages.dev/" class="backup-link">点击此处</a></div>
+</body>
+</html>
